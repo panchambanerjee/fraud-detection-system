@@ -21,12 +21,16 @@ import asyncio
 from contextlib import asynccontextmanager
 
 # Import our modules
-from ..features.feature_engineering import FeatureEngineer
-from ..features.feature_store import FeatureStoreManager, create_feature_store_manager
-from ..models.logistic_model import LogisticRegressionModel
-from ..models.xgboost_model import XGBoostModel
-from ..models.neural_network import DeepNeuralNetworkModel
-from ..explainability.model_explainer import ModelExplainer
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from features.feature_engineering import FeatureEngineer
+from features.feature_store import FeatureStoreManager, create_feature_store_manager
+from models.logistic_model import LogisticRegressionModel
+from models.xgboost_model import XGBoostModel
+# from models.neural_network import DeepNeuralNetworkModel  # Disabled for now
+# from explainability.model_explainer import ModelExplainer  # Disabled for now
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -74,13 +78,13 @@ async def initialize_components():
         models = {
             'logistic_regression': LogisticRegressionModel(),
             'xgboost': XGBoostModel(),
-            'neural_network': DeepNeuralNetworkModel()
+            # 'neural_network': DeepNeuralNetworkModel()  # Disabled for now
         }
         logger.info("Models initialized: %s", list(models.keys()))
         
-        # Initialize model explainer
-        model_explainer = ModelExplainer()
-        logger.info("Model explainer initialized")
+        # Initialize model explainer (disabled for now)
+        # model_explainer = ModelExplainer()
+        # logger.info("Model explainer initialized")
         
         # Load pre-trained models if available
         await load_pretrained_models()

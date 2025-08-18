@@ -79,17 +79,17 @@ class FraudDataGenerator:
         np.random.seed(seed)
         random.seed(seed)
         
+        # Geographic data (initialize first as it's needed by user profiles)
+        self.countries = self._get_country_data()
+        
         # Fraud pattern definitions
         self.fraud_patterns = self._define_fraud_patterns()
-        
-        # User profiles for realistic behavior
-        self.user_profiles = self._generate_user_profiles()
         
         # Merchant categories and risk levels
         self.merchant_categories = self._get_merchant_categories()
         
-        # Geographic data
-        self.countries = self._get_country_data()
+        # User profiles for realistic behavior
+        self.user_profiles = self._generate_user_profiles()
         
         logger.info("FraudDataGenerator initialized with seed %d", seed)
     

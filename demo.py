@@ -24,7 +24,8 @@ from data.generate_synthetic_data import FraudDataGenerator
 from features.feature_engineering import FeatureEngineer
 from models.logistic_model import LogisticRegressionModel
 from models.xgboost_model import XGBoostModel
-from explainability.model_explainer import ModelExplainer
+# Commented out to avoid TensorFlow dependency issues
+# from explainability.model_explainer import ModelExplainer
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -124,6 +125,25 @@ def demo_model_training(df, feature_engineer):
     
     print(f"Feature matrix shape: {features_df.shape}")
     
+    # Check if we have any features
+    if features_df.empty or features_df.shape[1] == 0:
+        print("⚠️  No features generated. Creating basic features for demo...")
+        # Create basic features for demo purposes
+        features_df = pd.DataFrame({
+            'amount': df['amount'],
+            'amount_log': np.log1p(df['amount']),
+            'hour_of_day': pd.to_datetime(df['timestamp']).dt.hour,
+            'day_of_week': pd.to_datetime(df['timestamp']).dt.dayofweek,
+            'is_weekend': pd.to_datetime(df['timestamp']).dt.dayofweek >= 5,
+            'amount_high': (df['amount'] > df['amount'].quantile(0.9)).astype(int),
+            'amount_low': (df['amount'] < df['amount'].quantile(0.1)).astype(int),
+            'category_risk': df['merchant_category'].map({
+                'gift_cards': 0.8, 'digital_goods': 0.7, 'gaming': 0.6,
+                'electronics': 0.4, 'clothing': 0.3, 'food_delivery': 0.2
+            }).fillna(0.5)
+        })
+        print(f"Created {features_df.shape[1]} basic features")
+    
     # Split data
     from sklearn.model_selection import train_test_split
     X_train, X_test, y_train, y_test = train_test_split(
@@ -217,61 +237,37 @@ def demo_real_time_scoring(lr_model, xgb_model, X_test, y_test):
 def demo_explainability(lr_model, xgb_model, X_test):
     """Demonstrate model explainability."""
     print("\n" + "="*60)
-    print("DEMO: MODEL EXPLAINABILITY")
+    print("DEMO: MODEL EXPLAINABILITY (DISABLED)")
     print("="*60)
     
-    explainer = ModelExplainer()
+    print("Explainability features are disabled to avoid TensorFlow dependency issues.")
+    print("To enable this feature, install TensorFlow and uncomment the related code.")
     
     # Sample a transaction
     sample_idx = np.random.choice(len(X_test))
-    features = X_test.iloc[sidx].to_dict()
-    
-    print("Generating risk insights for sample transaction...")
+    features = X_test.iloc[sample_idx].to_dict()
     
     # Score with both models
     lr_result = lr_model.score_single(features)
     xgb_result = xgb_model.score_single(features)
     
     print(f"\nLogistic Regression Results:")
-    print(f"  Risk Score: {lr_result['risk_score']:.4f}")
+    print(f"  Probability: {lr_result['probability']:.4f}")
     print(f"  Confidence: {lr_result['confidence']}")
     
-    # Generate risk insights
-    lr_insights = explainer.generate_risk_insights(
-        features, lr_result, 'logistic_regression'
-    )
-    
-    print(f"  Risk Level: {lr_insights['risk_level']}")
-    print(f"  Business Explanation: {lr_insights['business_explanation']}")
-    
-    if lr_insights['top_risk_factors']:
-        print("  Top Risk Factors:")
-        for factor in lr_insights['top_risk_factors'][:3]:
-            print(f"    - {factor['description']}: {factor['risk_contribution']:.4f}")
-    
     print(f"\nXGBoost Results:")
-    print(f"  Risk Score: {xgb_result['risk_score']:.4f}")
+    print(f"  Probability: {xgb_result['probability']:.4f}")
     print(f"  Confidence: {xgb_result['confidence']}")
     
-    # Generate risk insights
-    xgb_insights = explainer.generate_risk_insights(
-        features, xgb_result, 'xgboost'
-    )
-    
-    print(f"  Risk Level: {xgb_insights['risk_level']}")
-    print(f"  Business Explanation: {xgb_insights['business_explanation']}")
-    
-    if xgb_insights['top_risk_factors']:
-        print("  Top Risk Factors:")
-        for factor in xgb_insights['top_risk_factors'][:3]:
-            print(f"    - {factor['description']}: {factor['risk_contribution']:.4f}")
+    print("\nFor full explainability features, install TensorFlow and enable the ModelExplainer.")
 
 def main():
     """Run the complete demo."""
-    print("FRAUD DETECTION SYSTEM DEMO")
+    print("FRAUD DETECTION SYSTEM DEMO (SIMPLIFIED VERSION)")
     print("="*60)
-    print("This demo showcases the complete fraud detection pipeline")
+    print("This demo showcases the simplified fraud detection pipeline")
     print("inspired by Stripe Radar's approach.")
+    print("Note: TensorFlow features are disabled to avoid dependency issues.")
     
     try:
         # Step 1: Data Generation
@@ -286,7 +282,7 @@ def main():
         # Step 4: Real-time Scoring
         demo_real_time_scoring(lr_model, xgb_model, X_test, y_test)
         
-        # Step 5: Explainability
+        # Step 5: Explainability (simplified)
         demo_explainability(lr_model, xgb_model, X_test)
         
         print("\n" + "="*60)
@@ -297,11 +293,14 @@ def main():
         print("✅ Real-time feature engineering (<100ms)")
         print("✅ Multiple ML models (LR, XGBoost)")
         print("✅ Fast inference (<100ms)")
-        print("✅ Risk insights and explainability")
+        print("✅ Basic model insights (full explainability disabled)")
         print("\nNext steps:")
         print("1. Run 'python train_models.py' to train all models")
         print("2. Run 'python start_api.py' to start the API server")
         print("3. Test with 'curl -X POST http://localhost:8000/score'")
+        print("\nTo enable full features including Deep Neural Network:")
+        print("1. Fix TensorFlow/Keras compatibility (update keras to match tensorflow)")
+        print("2. Uncomment relevant imports in models/__init__.py and demo.py")
         
     except Exception as e:
         logger.error("Demo failed: %s", str(e))

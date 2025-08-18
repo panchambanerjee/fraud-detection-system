@@ -11,12 +11,13 @@ All models are optimized for <100ms inference time.
 
 from .logistic_model import LogisticRegressionModel
 from .xgboost_model import XGBoostModel
-from .neural_network import DeepNeuralNetworkModel
+# Commented out to avoid TensorFlow dependency issues
+# from .neural_network import DeepNeuralNetworkModel
 from .model_comparison import ModelComparison
 
 __all__ = [
     "LogisticRegressionModel",
     "XGBoostModel",
-    "DeepNeuralNetworkModel", 
+    # "DeepNeuralNetworkModel", 
     "ModelComparison"
 ]

@@ -7,14 +7,12 @@ and human-readable explanations for fraud decisions.
 
 from .model_explainer import (
     ModelExplainer,
-    RiskInsights,
-    SHAPExplainer,
+    RiskInsight,
     FeatureContribution
 )
 
 __all__ = [
     "ModelExplainer",
-    "RiskInsights",
-    "SHAPExplainer", 
+    "RiskInsight",
     "FeatureContribution"
 ]

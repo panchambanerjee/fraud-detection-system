@@ -341,6 +341,9 @@ class XGBoostModel:
             y_true, y_pred, average='binary', zero_division=0
         )
         
+        # For binary classification, we need the positive class probability (fraud)
+        if y_prob.ndim > 1 and y_prob.shape[1] == 2:
+            y_prob = y_prob[:, 1]  # Take fraud probability
         roc_auc = roc_auc_score(y_true, y_prob)
         
         return {
